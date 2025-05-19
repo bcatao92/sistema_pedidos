@@ -1,4 +1,4 @@
-# Ssistema Pedidos
+# Sistema Pedidos
 Trabalho de Bancos de Dados II
 
 Bruno Alves Catão Silva - 7553278
