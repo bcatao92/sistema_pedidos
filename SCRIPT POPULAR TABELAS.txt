@@ -1,0 +1,105 @@
+-- Habilitar extensão para UUID
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- 1. Inserir 100 Clientes
+-- 1. Inserir 100 Clientes com telefone ajustado para até 15 caracteres
+INSERT INTO Cliente (id_cliente, nome, email, telefone)
+SELECT
+    uuid_generate_v4(),
+    'Cliente ' || g,
+    'cliente' || g || '@exemplo.com',
+    '(' || (10 + (g % 90)) || ') 9' || lpad(((900 + (g * 37) % 1000)::text), 3, '0') || '-' || lpad(((1000 + (g * 73) % 9000)::text), 4, '0')
+FROM generate_series(1,100) AS s(g);
+
+-- 2. Inserir 100 Endereços (cada um vinculado a um cliente)
+INSERT INTO Endereco (id_endereco, rua, numero, cidade, estado, complemento, id_cliente)
+SELECT
+    uuid_generate_v4(),
+    'Rua ' || chr(65 + (g % 26)),
+    1 + (g * 3) % 500,
+    (ARRAY['São Paulo','Rio de Janeiro','Belo Horizonte','Curitiba','Porto Alegre'])[1 + (g % 5)],
+    (ARRAY['SP','RJ','MG','PR','RS'])[1 + (g % 5)],
+    CASE WHEN g % 3 = 0 THEN 'Apto ' || (100 + g) ELSE 'Casa' END,
+    c.id_cliente
+FROM generate_series(1,100) AS s(g)
+JOIN Cliente c ON c.email = 'cliente' || g || '@exemplo.com';
+
+-- 3. Inserir 100 Restaurantes
+INSERT INTO Restaurante (id_restaurante, nome, categoria, endereco)
+SELECT
+    uuid_generate_v4(),
+    'Restaurante ' || g,
+    (ARRAY['Italiana','Chinesa','Brasileira','Mexicana','Japonesa'])[1 + (g % 5)],
+    'Rua ' || chr(65 + (g % 26)) || ', ' || (1 + (g * 7) % 500)
+FROM generate_series(1,100) AS s(g);
+
+-- 4. Inserir 100 Produtos (vinculados a restaurantes)
+INSERT INTO Produto (id_produto, nome, preco, id_restaurante)
+SELECT
+    uuid_generate_v4(),
+    'Produto ' || g,
+    round((random() * 95 + 5)::numeric, 2),
+    r.id_restaurante
+FROM generate_series(1,100) AS s(g)
+JOIN (
+    SELECT id_restaurante, row_number() OVER () AS rn FROM Restaurante
+) r ON r.rn = g;
+
+
+-- 5. Inserir 100 Entregadores
+INSERT INTO Entregador (id_entregador, nome, veiculo)
+SELECT
+    uuid_generate_v4(),
+    'Entregador ' || g,
+    (ARRAY['Moto','Carro','Bicicleta','Patinete'])[1 + (g % 4)]
+FROM generate_series(1,100) AS s(g);
+
+-- 6. Inserir 100 Pedidos (vinculados a cliente, restaurante e entregador)
+INSERT INTO Pedido (id_pedido, data_hora, status, id_cliente, id_restaurante, id_entregador)
+SELECT
+    uuid_generate_v4(),
+    NOW() - (interval '1 day' * (random() * 30)),
+    (ARRAY['Pendente','Em andamento','Entregue','Cancelado'])[1 + (g % 4)],
+    c.id_cliente,
+    r.id_restaurante,
+    e.id_entregador
+FROM generate_series(1,100) AS s(g)
+JOIN (
+    SELECT id_cliente, row_number() OVER () AS rn FROM Cliente
+) c ON c.rn = g
+JOIN (
+    SELECT id_restaurante, row_number() OVER () AS rn FROM Restaurante
+) r ON r.rn = g
+JOIN (
+    SELECT id_entregador, row_number() OVER () AS rn FROM Entregador
+) e ON e.rn = g;
+
+-- 7. Inserir 100 Itens_Pedido (vinculados a pedidos e produtos)
+INSERT INTO Itens_Pedido (id_item, id_pedido, id_produto, quantidade)
+SELECT
+    uuid_generate_v4(),
+    p.id_pedido,
+    pr.id_produto,
+    1 + (g % 5)
+FROM generate_series(1,100) AS s(g)
+JOIN (
+    SELECT id_pedido, row_number() OVER () AS rn FROM Pedido
+) p ON p.rn = g
+JOIN (
+    SELECT id_produto, row_number() OVER () AS rn FROM Produto
+) pr ON pr.rn = g;
+
+-- 8. Inserir 100 Avaliações (vinculadas a pedidos)
+INSERT INTO Avaliacao (id_avaliacao, nota, comentario, tipo_avaliacao, id_pedido)
+SELECT
+    uuid_generate_v4(),
+    1 + floor(random() * 5)::int,
+    'Comentário ' || g,
+    (ARRAY['cliente','entregador'])[1 + (g % 2)],
+    p.id_pedido
+FROM generate_series(1,100) AS s(g)
+JOIN (
+    SELECT id_pedido, row_number() OVER () AS rn FROM Pedido
+) p ON p.rn = g;
+
+

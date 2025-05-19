@@ -1,0 +1,85 @@
+-- Script do Banco de Dados - Sistema de Delivery
+-- Estruturação completa das tabelas, chaves e índices
+
+-- Tabela Cliente
+CREATE TABLE Cliente (
+    id_cliente VARCHAR(36) PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    telefone VARCHAR(15)
+);
+
+-- Tabela Endereço
+CREATE TABLE Endereco (
+    id_endereco VARCHAR(36) PRIMARY KEY (),
+    rua VARCHAR(100) NOT NULL,
+    numero INT NOT NULL,
+    cidade VARCHAR(50) NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    complemento VARCHAR(100),
+    id_cliente VARCHAR(36) NOT NULL,
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente)
+);
+
+-- Tabela Restaurante
+CREATE TABLE Restaurante (
+    id_restaurante VARCHAR(36) PRIMARY KEY(),
+    nome VARCHAR(100) NOT NULL,
+    categoria VARCHAR(50),
+    endereco VARCHAR(150)
+);
+
+-- Tabela Produto
+CREATE TABLE Produto (
+    id_produto VARCHAR(36) PRIMARY KEY (),
+    nome VARCHAR(100) NOT NULL,
+    preco NUMERIC(10, 2) NOT NULL,
+    id_restaurante VARCHAR(36) NOT NULL,
+    FOREIGN KEY (id_restaurante) REFERENCES Restaurante(id_restaurante)
+);
+
+-- Tabela Entregador
+CREATE TABLE Entregador (
+    id_entregador VARCHAR(36) PRIMARY KEY ,
+    nome VARCHAR(100) NOT NULL,
+    veiculo VARCHAR(50)
+);
+
+-- Tabela Pedido
+CREATE TABLE Pedido (
+    id_pedido VARCHAR(36) PRIMARY KEY (),
+    data_hora TIMESTAMP NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    id_cliente VARCHAR(36) NOT NULL,
+    id_restaurante VARCHAR(36) NOT NULL,
+    id_entregador VARCHAR(36),
+    FOREIGN KEY (id_cliente) REFERENCES Cliente(id_cliente),
+    FOREIGN KEY (id_restaurante) REFERENCES Restaurante(id_restaurante),
+    FOREIGN KEY (id_entregador) REFERENCES Entregador(id_entregador)
+);
+
+-- Tabela Itens_Pedido
+CREATE TABLE Itens_Pedido (
+    id_item VARCHAR(36) PRIMARY KEY(),
+    id_pedido VARCHAR(36) NOT NULL,
+    id_produto UUID NOT NULL,
+    quantidade INT NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido),
+    FOREIGN KEY (id_produto) REFERENCES Produto(id_produto)
+);
+
+-- Tabela Avaliacao
+CREATE TABLE Avaliacao (
+    id_avaliacao VARCHAR(36) PRIMARY KEY(),
+    nota INT CHECK (nota BETWEEN 1 AND 5),
+    comentario TEXT,
+    tipo_avaliacao VARCHAR(10) CHECK (tipo_avaliacao IN ('cliente', 'entregador')),
+    id_pedido VARCHAR(36) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES Pedido(id_pedido)
+);
+
+-- Índices
+CREATE INDEX idx_cliente_email ON Cliente(email);
+CREATE INDEX idx_cliente_telefone ON Cliente(telefone);
+CREATE INDEX idx_pedido_data ON Pedido(data_hora);
+CREATE INDEX idx_produto_nome ON Produto(nome);
