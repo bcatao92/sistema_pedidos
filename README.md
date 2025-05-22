@@ -14,12 +14,6 @@ Luigi Tramontin - 12727987
 Trabalho de Bancos de Dados II:
 Express Food
 
-
-Bruno Alves Catão Silva - 7553278
-Cayo Felipe Barbosa Soares - 13719520
-Guilherme Nogueira Pereira - 12543096
-Luigi Tramontin - 12727987
-Thomas Delfs - 13837175
 Fundamentação Teórica e Justificativa: Sistema de Banco de Dados para Aplicativo de Delivery 
 O mercado de delivery no Brasil e no mundo está em constante evolução, apresentando desafios técnicos e oportunidades de inovação que fazem deste setor um caso de estudo ideal para a aplicação de sistemas de banco de dados relacionais. Este documento apresenta uma fundamentação teórica abrangente sobre o tema, destacando dados de mercado, desafios operacionais e a importância dos sistemas de banco de dados para aplicativos de delivery. 
 1. Panorama do Mercado de Delivery: Crescimento e Tendências 
